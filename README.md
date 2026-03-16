@@ -2,7 +2,7 @@
 
 Personal portfolio and presentation site built with Vite and TypeScript.
 
-Live at: `https://personal-website-gold-eight-61.vercel.app/` ← sostituisci con il tuo URL
+Live at: `https://gian-portfolio-gold-eight-61.vercel.app/`
 
 ---
 
