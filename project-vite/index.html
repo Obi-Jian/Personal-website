@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" class="unloaded">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gianluca Colombo, Student + Developer</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+  <div id="bg"></div>
+  <video id="bgVideo" autoplay muted loop playsinline>
+    <source src="/video/background.mp4" type="video/mp4">
+  </video>
+  <!-- Lang switcher -->
+  <div id="langSwitcher">
+    <button class="langBtn langBtn--active" data-lang="en">EN</button>
+    <span class="langDivider">/</span>
+    <button class="langBtn" data-lang="it">IT</button>
+  </div>
+
+  <div class="wrapper fadeOnLoad">
+    <div class="siteMeta">
+      <span class="siteTitle">Gianluca Colombo,<br>Student + developer</span>
+
+      <nav id="nav">
+        <div class="expandablePanel" id="aboutPanel">
+          <a class="navLink expandablePanelTrigger" href="#" data-panel="aboutPanel">About</a>
+          <div class="expandablePanelContentContainer">
+            <div class="expandablePanelContent smallerText">
+              <div id="aboutSectionContent"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="expandablePanel" id="workPanel">
+          <a class="navLink expandablePanelTrigger" href="#" data-panel="workPanel">Selected Work</a>
+          <div class="expandablePanelContentContainer">
+            <div class="expandablePanelContent">
+              <div id="projects"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="expandablePanel" id="experiencePanel">
+          <a class="navLink expandablePanelTrigger" href="#" data-panel="experiencePanel">Work Experience</a>
+          <div class="expandablePanelContentContainer">
+            <div class="expandablePanelContent">
+              <div id="experience"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="expandablePanel" id="contactPanel">
+          <a class="navLink expandablePanelTrigger" href="#" data-panel="contactPanel">Contact</a>
+          <div class="expandablePanelContentContainer">
+            <div class="expandablePanelContent smallerText">
+              <div id="contactLinks"></div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Vite injects the compiled + bundled JS here automatically -->
+  <script type="module" src="/src/main.ts"></script>
+
+</body>
+</html>
