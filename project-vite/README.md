@@ -23,6 +23,7 @@ src/
 ## Setup locale
 
 ```bash
+cd project-vite
 npm install
 npm run dev       # → http://localhost:5173 con hot reload
 ```
