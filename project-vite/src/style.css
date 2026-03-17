@@ -49,9 +49,13 @@ a { text-decoration: none; color: inherit; }
 
 #bgVideo {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
   object-fit: cover;
   z-index: -1;
   opacity: 0.40;
@@ -60,6 +64,7 @@ a { text-decoration: none; color: inherit; }
 /* ─── Layout ─────────────────────────────────────────────────────────────── */
 .wrapper {
   margin: var(--margin-top) var(--margin-h) 0;
+  margin-top: max(var(--margin-top), env(safe-area-inset-top) + 8px);
   padding-bottom: 60px;
 }
 

@@ -265,10 +265,8 @@ function init(): void {
   initPanels()
   initLangSwitcher()
 
-  window.addEventListener('load', () => {
-    document.documentElement.classList.remove('unloaded')
-    setTimeout(() => document.body.classList.add('loaded'), 50)
-  })
+  document.documentElement.classList.remove('unloaded')
+  setTimeout(() => document.body.classList.add('loaded'), 50)
 }
 
 init()
