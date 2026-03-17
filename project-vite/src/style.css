@@ -28,7 +28,6 @@
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
 html, body {
-  background: #000;
   color: var(--tit);
   font-family: var(--font);
   font-size: var(--font-size);
@@ -37,6 +36,27 @@ html, body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   height: 100%;
+  background-color: #000 !important; /* Forza il nero */
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overscroll-behavior: none; 
+}
+
+html.unloaded { overflow: hidden; }
+a { text-decoration: none; color: inherit; }
+
+#bgVideo {
+  position: fixed;
+  top: 0;
+  left: 0vh;
+  width: 100%;
+  /* svh = Small Viewport Height, evita scatti su mobile */
+  height: 120vh; 
+  object-fit: contain;
+  z-index: 0;
+  opacity: 0.40;
+  background-color: #000; 
 }
 
 #bg {
@@ -46,26 +66,10 @@ html, body {
   z-index: -2;
 }
 
-html.unloaded { overflow: hidden; }
-a { text-decoration: none; color: inherit; }
-
-#bgVideo {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  transform: translate(-50%, -50%);
-  object-fit: cover;
-  z-index: -1;
-  opacity: 0.40;
-  pointer-events: none;
-}
-
 /* ─── Layout ─────────────────────────────────────────────────────────────── */
 .wrapper {
+  position: relative;
+  z-index: 10;
   margin: var(--margin-top) var(--margin-h) 0;
   margin-top: max(var(--margin-top), env(safe-area-inset-top) + 8px);
   padding-bottom: 60px;
