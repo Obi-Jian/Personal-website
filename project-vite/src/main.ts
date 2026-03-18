@@ -217,9 +217,21 @@ function initLangSwitcher(): void {
   })
 }
 
+// ─── Black screen if video doesn't start (ex. iPhone in low energy mode) ──────
+
+function initVideo(): void {
+  const video = document.getElementById('bgVideo') as HTMLVideoElement | null
+  if (!video) return
+
+  video.play().catch(() => {
+    video.style.display = 'none'  // nasconde il video, rimane sfondo nero
+  })
+}
+
 // ─── Bootstrap ────────────────────────────────────────────────────────────────
 
 function init(): void {
+  initVideo()
   applyTranslations(currentLang)
   initPanels()
   initLangSwitcher()

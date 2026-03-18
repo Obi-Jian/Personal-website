@@ -66,6 +66,10 @@ a { text-decoration: none; color: inherit; }
   z-index: -2;
 }
 
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ─── Layout ─────────────────────────────────────────────────────────────── */
 .wrapper {
   position: relative;
@@ -149,7 +153,7 @@ body.openPanel .siteMeta     { color: var(--muted); }
 
 .expandablePanelContent {
   display: block;
-  padding-top: 0px;
+  padding-top: 30px;
   padding-bottom: 60px;
   opacity: 0;
   transition: opacity .4s;
@@ -170,7 +174,7 @@ body.openPanel .siteMeta     { color: var(--muted); }
 #aboutSectionContent { width: 87.5%; }
 
 /* ─── Projects ───────────────────────────────────────────────────────────── */
-#projects  { margin-top: 20px; margin-bottom: 20px; }
+#projects  { margin-bottom: 20px; }
 .project   { margin-bottom: 10px; }
 
 .projectPreview {
@@ -258,22 +262,6 @@ body.openPanel .siteMeta     { color: var(--muted); }
   transition: color .4s, border-color .4s;
 }
 .contactLink:hover { color: var(--muted); border-color: var(--muted); }
-
-/* ─── Custom cursor ──────────────────────────────────────────────────────── */
-#cursor {
-  height: 47px;
-  width: 30px;
-  position: fixed;
-  top: -200px; left: -200px;
-  pointer-events: none;
-  margin-left: -10px; margin-top: -10px;
-  transition: transform .2s;
-  filter: drop-shadow(0 0 5px rgba(0,0,0,.5));
-  transform: rotate(-22.5deg);
-  z-index: 50;
-}
-@media (hover: none) { #cursor { display: none !important; } }
-
 
 /* ════════════════════════════════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
