@@ -6,6 +6,7 @@ export interface ProjectTranslation {
   readonly description: string
   readonly imageCount: number
   readonly classic?: boolean
+  readonly images?:     readonly string[]
 }
 
 export interface Translations {

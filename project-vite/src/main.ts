@@ -102,56 +102,15 @@ function initImageCycling(): void {
 
 // ─── Project builder ──────────────────────────────────────────────────────────
 
-/* function buildProjectHTML(p: ProjectTranslation): string {
-  const multiClass   = p.imageCount > 1 ? ' multipleImages' : ''
-  const classicClass = p.classic ? ' classic' : ''
-  const countHTML    = p.imageCount > 1
-    ? `<span class="imageCount">${translations[currentLang].imageOf(1, p.imageCount)}</span>`
-    : ''
-
-  const palette = ['#FF5A5F', '#2a2a2a', '#4285F4', '#e63329', '#0071e3', '#5f5fc4']
-  const imagesHTML = Array.from({ length: p.imageCount }).map((_, i) => {
-    const showClass = i === 0 ? ' showing' : ''
-    const bg    = palette[(parseInt(p.id.replace('proj', '')) - 1 + i) % palette.length]
-    const label = p.title.split('—')[1]?.trim() ?? p.title
-    return `<svg class="image${showClass}" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
-        <rect width="1600" height="900" fill="${bg}"/>
-        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-          fill="white" font-size="80" font-family="helvetica" letter-spacing="-2">${label}</text>
-      </svg>`
-  }).join('\n')
-
-  const triggersHTML = p.imageCount > 1 ? `
-      <div class="imageContainerTriggerHolder">
-        <div class="imageContainerTrigger" data-project="${p.id}" data-dir="-1"></div>
-        <div class="imageContainerTrigger" data-project="${p.id}" data-dir="1"></div>
-      </div>` : ''
-
-  return `
-    <div class="project${multiClass}${classicClass}" id="${p.id}">
-      <a class="projectTitle" href="#">${p.title}</a>
-      <p class="projectDescription">${p.description}</p>
-      <div class="projectPreview">
-        <div class="projectImages">
-          ${triggersHTML}
-          ${imagesHTML}
-        </div>
-      </div>
-      ${countHTML}
-    </div>`
-} */
-
 function buildProjectHTML(p: ProjectTranslation): string {
   const multiClass   = p.imageCount > 1 ? ' multipleImages' : ''
   const classicClass = p.classic ? ' classic' : ''
 
-  // immagini e counter solo se imageCount > 0
   const previewHTML = p.imageCount > 0 ? `
       <div class="projectPreview">
         <div class="projectImages">
           ${p.imageCount > 1 ? `
           <div class="imageContainerTriggerHolder">
-            <div class="imageContainerTrigger" data-project="${p.id}" data-dir="-1"></div>
             <div class="imageContainerTrigger" data-project="${p.id}" data-dir="1"></div>
           </div>` : ''}
           ${buildImagesHTML(p)}
@@ -162,23 +121,17 @@ function buildProjectHTML(p: ProjectTranslation): string {
 
   return `
     <div class="project${multiClass}${classicClass}" id="${p.id}">
-      <a class="projectTitle" href="#">${p.title}</a>
+      <span class="projectTitle">${p.title}</span>
       <p class="projectDescription">${p.description}</p>
       ${previewHTML}
     </div>`
 }
 
 function buildImagesHTML(p: ProjectTranslation): string {
-  const palette = ['#FF5A5F', '#2a2a2a', '#4285F4', '#e63329', '#0071e3', '#5f5fc4']
-  return Array.from({ length: p.imageCount }).map((_, i) => {
+  const sources = p.images ?? []
+  return sources.map((src, i) => {
     const showClass = i === 0 ? ' showing' : ''
-    const bg    = palette[(parseInt(p.id.replace('proj', '')) - 1 + i) % palette.length]
-    const label = p.title.split('—')[1]?.trim() ?? p.title
-    return `<svg class="image${showClass}" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
-        <rect width="1600" height="900" fill="${bg}"/>
-        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-          fill="white" font-size="80" font-family="helvetica" letter-spacing="-2">${label}</text>
-      </svg>`
+    return `<img class="image${showClass}" src="${src}" alt="${p.title}" />`
   }).join('\n')
 }
 
@@ -187,21 +140,18 @@ function buildImagesHTML(p: ProjectTranslation): string {
 function applyTranslations(lang: Lang): void {
   const t = translations[lang]
 
-  const navAbout   = document.querySelector<HTMLElement>('[data-panel="aboutPanel"]')
-  const navWork    = document.querySelector<HTMLElement>('[data-panel="workPanel"]')
-  const navContact = document.querySelector<HTMLElement>('[data-panel="contactPanel"]')
-  const navExperience  = document.querySelector<HTMLElement>('[data-panel="experiencePanel"]')
-  const experienceEl = document.getElementById('experience')
+  // nav
+  const navAbout      = document.querySelector<HTMLElement>('[data-panel="aboutPanel"]')
+  const navWork       = document.querySelector<HTMLElement>('[data-panel="workPanel"]')
+  const navContact    = document.querySelector<HTMLElement>('[data-panel="contactPanel"]')
+  const navExperience = document.querySelector<HTMLElement>('[data-panel="experiencePanel"]')
 
+  if (navAbout)      navAbout.textContent      = t.nav.about
+  if (navWork)       navWork.textContent       = t.nav.work
+  if (navContact)    navContact.textContent    = t.nav.contact
   if (navExperience) navExperience.textContent = t.nav.experience
-  if (experienceEl)  experienceEl.innerHTML    = t.experience.projects.map(buildProjectHTML).join('\n')
-  if (navAbout)   navAbout.textContent   = t.nav.about
-  if (navWork)    navWork.textContent    = t.nav.work
-  if (navContact) navContact.textContent = t.nav.contact
 
-  initImageCycling()
-  t.experience.projects.forEach(p => { imageIndexes[p.id] = 0 })
-
+  // about
   const aboutContent = document.getElementById('aboutSectionContent')
   if (aboutContent) {
     aboutContent.innerHTML = `
@@ -212,25 +162,34 @@ function applyTranslations(lang: Lang): void {
       </div>`
   }
 
+  // contact
   const contactLinks = document.getElementById('contactLinks')
   if (contactLinks) {
     contactLinks.innerHTML = `
       <a href="mailto:cuboids.plectra_3g@icloud.com" class="contactLink">${t.contact.email}</a><br>
-      <a href="https://github.com/Obi-Jian" class="contactLink">${t.contact.linkedin, "LinkedIn not available now"}</a><br>
+      <a href="https://linkedin.com/in/gianluca-colombo-milano" class="contactLink">${t.contact.linkedin}</a><br>
       <a href="https://github.com/Obi-Jian" class="contactLink">${t.contact.github}</a>`
   }
 
-/*   const soundEl = document.getElementById('soundController')
-  if (soundEl) soundEl.textContent = t.sound */
-
+  // projects — renderizza PRIMA di initImageCycling
   const projectsEl = document.getElementById('projects')
   if (projectsEl) {
     projectsEl.innerHTML = t.projects.map(buildProjectHTML).join('\n')
   }
 
-  initImageCycling()
-  t.projects.forEach(p => { imageIndexes[p.id] = 0 })
+  const experienceEl = document.getElementById('experience')
+  if (experienceEl) {
+    experienceEl.innerHTML = t.experience.projects.map(buildProjectHTML).join('\n')
+  }
 
+  // reset indexes
+  t.projects.forEach(p => { imageIndexes[p.id] = 0 })
+  t.experience.projects.forEach(p => { imageIndexes[p.id] = 0 })
+
+  // init cycling UNA VOLTA SOLA dopo che tutto il DOM è pronto
+  initImageCycling()
+
+  // lang buttons
   document.querySelectorAll<HTMLElement>('.langBtn').forEach(btn => {
     btn.classList.toggle('langBtn--active', btn.dataset['lang'] === lang)
   })
