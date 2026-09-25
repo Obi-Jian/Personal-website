@@ -11,7 +11,7 @@ export const translations: TranslationsMap = {
     },
     about: {
       intro:
-        "I'm a computer science student at the University of Insubria.\nI graduated with a degree in graphic design and communication in 2023, and immediately enrolled in university, where I discovered my true calling.",
+        "I'm a computer science student at the University of Insubria.\nI graduated with a degree in graphic design and communication in 2023, and immediately enrolled in university, where I discovered my calling.",
       experience:
         '',
       closing:
@@ -108,7 +108,7 @@ export const translations: TranslationsMap = {
     },
     about: {
       intro:
-        "Sono uno studente all'ultimo anno di informatica presso l\'Università degli studi dell\'Insubria.\nDiplomato in grafica e comunicazione nel 2023, mi sono subito iscritto all'università e ho scoperto la mia vera strada.",
+        "Sono uno studente all'ultimo anno di informatica presso l\'Università degli studi dell\'Insubria.\nDiplomato in grafica e comunicazione nel 2023, mi sono subito iscritto all'università e ho scoperto la mia strada.",
       experience:
         '',
       closing:

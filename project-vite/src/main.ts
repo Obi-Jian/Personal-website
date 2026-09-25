@@ -63,17 +63,34 @@ function setHash(panelId: string | null): void {
   history.replaceState(null, '', url)
 }
 
-// Scroll so `panel`'s title sits at the top. `scrollIntoView` targets whichever
-// element is actually scrolling (here it's <body>, since the html/body height +
-// overflow rules make the body the scroller, not the window). We wait for the
-// expand/collapse animation to settle first — otherwise the page isn't tall
-// enough yet and the scroll lands short. Breathing room comes from the CSS
-// `scroll-margin-top` on `.expandablePanel`.
+// The element that actually scrolls: html/body height + overflow rules make the
+// <body> the scroller here, not the window/documentElement.
+function scrollerEl(): HTMLElement {
+  const de = document.documentElement
+  return de.scrollHeight > de.clientHeight + 1 ? de : document.body
+}
+
+// Scroll so `panel`'s title sits at the top — starting immediately (no wait) and
+// re-reading the target/limit each frame, so it "follows" the panel as it expands
+// instead of waiting for the animation to finish. This removes the perceived
+// delay. Offset comes from the CSS `scroll-margin-top` on `.expandablePanel`.
 function scrollPanelToTop(panel: HTMLElement): void {
-  const reduce = prefersReducedMotion()
-  window.setTimeout(() => {
-    panel.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
-  }, reduce ? 0 : 480)  // ~ --dur (0.45s) + buffer
+  const el     = scrollerEl()
+  const offset = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0
+  const start  = el.scrollTop
+  const t0      = performance.now()
+  const dur    = prefersReducedMotion() ? 0 : 380
+  const easeOut = (x: number): number => 1 - Math.pow(1 - x, 3)
+
+  const step = (now: number): void => {
+    const p       = dur ? Math.min(1, (now - t0) / dur) : 1
+    const wantDoc = panel.getBoundingClientRect().top + el.scrollTop - offset
+    const maxTop  = el.scrollHeight - el.clientHeight
+    const target  = Math.max(0, Math.min(wantDoc, maxTop))
+    el.scrollTop  = start + (target - start) * easeOut(p)
+    if (p < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
 }
 
 function togglePanel(panelId: string): void {
