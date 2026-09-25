@@ -39,52 +39,18 @@ const prefersReducedMotion = (): boolean =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 // ─── Expandable panels ────────────────────────────────────────────────────────
-// Opacity/entrance transforms live in CSS (keyed on `.open`); JS only drives the
-// height animation, which needs a measured pixel value to transition from/to.
+// Height animation is pure CSS (grid-template-rows 0fr↔1fr, keyed on `.open`), so
+// there is no measured pixel height that can go stale and clip the content below
+// — the open panel is always exactly `auto` tall. JS only toggles the class/ARIA.
 
 function openPanel(panelEl: HTMLElement): void {
-  const container = qs<HTMLElement>('.expandablePanelContentContainer', panelEl)
-  const trigger   = qs<HTMLElement>('.expandablePanelTrigger', panelEl)
   panelEl.classList.add('open')
-  trigger.setAttribute('aria-expanded', 'true')
-
-  if (prefersReducedMotion()) {
-    container.style.height = 'auto'
-    return
-  }
-
-  const target = container.scrollHeight
-  container.style.height = '0'
-  requestAnimationFrame(() => {
-    container.style.height = `${target}px`
-  })
-
-  // Once open, release to `auto` so later reflows (e.g. cycling images of
-  // different aspect ratios) don't get clipped by a stale fixed height.
-  const onEnd = (e: TransitionEvent): void => {
-    if (e.propertyName !== 'height') return
-    if (panelEl.classList.contains('open')) container.style.height = 'auto'
-    container.removeEventListener('transitionend', onEnd)
-  }
-  container.addEventListener('transitionend', onEnd)
+  qs<HTMLElement>('.expandablePanelTrigger', panelEl).setAttribute('aria-expanded', 'true')
 }
 
 function closePanel(panelEl: HTMLElement): void {
-  const container = qs<HTMLElement>('.expandablePanelContentContainer', panelEl)
-  const trigger   = qs<HTMLElement>('.expandablePanelTrigger', panelEl)
   panelEl.classList.remove('open')
-  trigger.setAttribute('aria-expanded', 'false')
-
-  if (prefersReducedMotion()) {
-    container.style.height = '0'
-    return
-  }
-
-  // From `auto` → explicit px → 0 so the browser has something to animate from.
-  container.style.height = `${container.scrollHeight}px`
-  requestAnimationFrame(() => {
-    container.style.height = '0'
-  })
+  qs<HTMLElement>('.expandablePanelTrigger', panelEl).setAttribute('aria-expanded', 'false')
 }
 
 function closeAllPanels(): void {
@@ -291,10 +257,7 @@ function initLangSwitcher(): void {
       currentLang = lang
       localStorage.setItem('lang', lang)
       applyTranslations(lang)
-      // Content length differs per language: let open panels reflow to `auto`.
-      qsAll<HTMLElement>('.expandablePanel.open').forEach(panel => {
-        qs<HTMLElement>('.expandablePanelContentContainer', panel).style.height = 'auto'
-      })
+      // Open panels reflow automatically (grid `1fr` = content height).
     })
   })
 }
@@ -312,7 +275,15 @@ function initKeyboard(): void {
   })
 }
 
-// ─── Black screen if video doesn't start (ex. iPhone in low energy mode) ──────
+// ─── Video background with static fallback ────────────────────────────────────
+// If autoplay is blocked (Safari Low Power Mode, iOS energy saving, reduced
+// motion…) we hide the <video> entirely and reveal a static image layer
+// (#bgFallback) via `body.videoFallback`. Hiding the video avoids the native
+// play-button overlay Safari draws over a paused video.
+
+function useStaticBackground(): void {
+  document.body.classList.add('videoFallback')
+}
 
 function initVideo(): void {
   const video = document.getElementById('bgVideo') as HTMLVideoElement | null
@@ -320,13 +291,11 @@ function initVideo(): void {
 
   if (prefersReducedMotion()) {
     video.pause()
-    video.style.display = 'none'
+    useStaticBackground()
     return
   }
 
-  video.play().catch(() => {
-    video.style.display = 'none'  // nasconde il video, rimane sfondo nero
-  })
+  video.play().catch(useStaticBackground)  // autoplay blocked → static image
 }
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────

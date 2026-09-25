@@ -62,19 +62,35 @@ a { text-decoration: none; color: inherit; }
 }
 :focus:not(:focus-visible) { outline: none; }
 
-#bgVideo {
+#bgVideo, #bgFallback {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   /* height leggermente maggiore del viewport per evitare bande su mobile */
   height: 120vh;
-  object-fit: contain;
   z-index: 0;
-  opacity: 0.40;
   background: #000000;
+}
+#bgVideo {
+  object-fit: contain;
+  opacity: 0.40;
   will-change: opacity;
 }
+
+/* Static fallback shown when the video cannot autoplay (Safari Low Power, iOS
+   energy saving, reduced motion). It replaces the paused <video> so no native
+   play-button overlay is shown. Framing matches the video exactly. */
+#bgFallback {
+  background-image: url('/images/background.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0;
+  pointer-events: none;
+}
+body.videoFallback #bgVideo   { display: none; }
+body.videoFallback #bgFallback { opacity: 0.40; }
 
 #bg {
   position: fixed;
@@ -191,19 +207,31 @@ body.openPanel .siteMeta     { color: var(--muted); }
 }
 .expandablePanel.open .expandablePanelTrigger { color: var(--fg); }
 
+/* Height animation via animatable grid rows: collapses to 0 and expands to the
+   content's own height (1fr) with no JS measurement — so the panel can never end
+   up with a stale fixed height that clips the sections below it. */
 .expandablePanelContentContainer {
-  height: 0;
-  overflow: hidden;
-  transition: height var(--dur) var(--ease);
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur) var(--ease);
+}
+.expandablePanel.open .expandablePanelContentContainer {
+  grid-template-rows: 1fr;
 }
 
 .expandablePanelContent {
-  display: block;
-  padding-top: 30px;
-  padding-bottom: 60px;
+  min-height: 0;
+  overflow: hidden;
   opacity: 0;
   transform: translateY(8px);
   transition: opacity .5s var(--ease), transform .5s var(--ease);
+}
+/* Padding lives on the inner child, NOT on the grid item: keeping the grid item
+   padding-free lets it collapse fully to 0 when closed (Safari would otherwise
+   keep the padding height, spacing the nav items apart). */
+.expandablePanelContent > * {
+  padding-top: 30px;
+  padding-bottom: 60px;
 }
 .expandablePanel.open .expandablePanelContent {
   opacity: 1;
@@ -568,7 +596,7 @@ body.openPanel .siteMeta     { color: var(--muted); }
   .expandablePanelContent .project,
   #aboutSectionContent p,
   #contactLinks .contactLink { transform: none; }
-  #bgVideo { display: none; }
+  /* Video is paused by JS; its poster stays as a static background (no motion). */
 }
 
 /* ─── Print ──────────────────────────────────────────────────────────────── */
@@ -584,14 +612,14 @@ body.openPanel .siteMeta     { color: var(--muted); }
   body { color: #000; background: #fff; }
   .siteTitle, .projectTitle, .contactLink { color: #000; }
   .navLink, .expandablePanelTrigger { color: #000; }
-  .expandablePanelContentContainer { height: auto !important; overflow: visible !important; }
-  .expandablePanelContent { opacity: 1 !important; transform: none !important; }
+  .expandablePanelContentContainer { grid-template-rows: 1fr !important; }
+  .expandablePanelContent { overflow: visible !important; opacity: 1 !important; transform: none !important; }
   .projectPreview, .projectDescription { width: 100%; }
 }
 
 /* ─── Very narrow bg-video framing ───────────────────────────────────────── */
 @media (max-width: 599px) {
-  #bgVideo {
+  #bgVideo, #bgFallback {
     bottom: 10vh;
     left: 0;
     width: 110%;
