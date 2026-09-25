@@ -63,19 +63,35 @@ function setHash(panelId: string | null): void {
   history.replaceState(null, '', url)
 }
 
+// Scroll so `panel`'s title sits at the top. `scrollIntoView` targets whichever
+// element is actually scrolling (here it's <body>, since the html/body height +
+// overflow rules make the body the scroller, not the window). We wait for the
+// expand/collapse animation to settle first — otherwise the page isn't tall
+// enough yet and the scroll lands short. Breathing room comes from the CSS
+// `scroll-margin-top` on `.expandablePanel`.
+function scrollPanelToTop(panel: HTMLElement): void {
+  const reduce = prefersReducedMotion()
+  window.setTimeout(() => {
+    panel.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  }, reduce ? 0 : 480)  // ~ --dur (0.45s) + buffer
+}
+
 function togglePanel(panelId: string): void {
   const panel = document.getElementById(panelId)
   if (!panel) return
-  const isOpen = panel.classList.contains('open')
-  closeAllPanels()
-  if (!isOpen) {
-    openPanel(panel)
-    document.body.classList.add('openPanel')
-    setHash(panelId)
-  } else {
+
+  if (panel.classList.contains('open')) {
+    closeAllPanels()
     document.body.classList.remove('openPanel')
     setHash(null)
+    return
   }
+
+  closeAllPanels()
+  openPanel(panel)
+  document.body.classList.add('openPanel')
+  setHash(panelId)
+  scrollPanelToTop(panel)
 }
 
 function initPanels(): void {
@@ -97,6 +113,7 @@ function initPanels(): void {
     closeAllPanels()
     openPanel(panel)
     document.body.classList.add('openPanel')
+    scrollPanelToTop(panel)
   }
   openFromHash()
   window.addEventListener('hashchange', openFromHash)

@@ -6,7 +6,7 @@ export const translations: TranslationsMap = {
       about:   'About',
       work:    'Skills',
       projects: 'Projects',
-      contact: 'Contact',
+      contact: 'Contacts',
       experience: 'Experience',
     },
     about: {

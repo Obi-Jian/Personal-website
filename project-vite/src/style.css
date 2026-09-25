@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Electrolize&family=Geist+Pixel&family=Jersey+20+Charted&family=Rubik+Broken+Fax&family=Sixtyfour&family=Sixtyfour+Convergence&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bytesized&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&display=swap');
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
@@ -16,7 +19,24 @@
   --tit:    #ffffff;
 
   /* Typography */
-  --font:              'DM Sans', helvetica, sans-serif;
+  /* --font:              'DM Sans', helvetica, sans-serif; */
+  /* --font:              'Electrolize', sans-serif; */
+  /* --font:              'Ubuntu Mono', monospace; */
+  /* --font:              'Geist Pixel', sans-serif; */
+  --font:        'Pixelify Sans', sans-serif;
+
+  /* --font-title:        'Sixtyfour', sans-serif; */
+  /* --font-title:        'Jersey 20 Charted', sans-serif; */
+  /* --font-title:        'Bytesized', sans-serif; */
+  /* --font-title:        'Press Start 2P', system-ui; */
+  --font-title:        'Pixelify Sans', sans-serif;
+
+
+
+
+  
+
+
   --font-size:         6.75vw;
   --font-size-title:   3.75vw;
   --font-size-2:       3.00vw;
@@ -165,6 +185,7 @@ body.loaded #langSwitcher { opacity: 1; }
 body.openPanel .siteMeta     { color: var(--muted); }
 .siteTitle {
   display: block;
+  font-family: var(--font-title);
   font-size: inherit;
   font-weight: 400;
   line-height: 1.05;
@@ -193,6 +214,8 @@ body.openPanel .siteMeta     { color: var(--muted); }
 .navLink.active { color: var(--fg); }
 
 /* ─── Expandable panels ──────────────────────────────────────────────────── */
+/* When a panel is scrolled to the top (on open), leave room above the title. */
+.expandablePanel { scroll-margin-top: var(--margin-top); }
 .expandablePanelTrigger {
   display: inline-block;
   color: var(--muted);
