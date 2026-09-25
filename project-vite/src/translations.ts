@@ -75,12 +75,12 @@ export const translations: TranslationsMap = {
     ],
     experience: {
       projects: [
-        {
+        /* {
           id: 'exp1',
           title: 'IsyPatient',
           description: 'What do I work on? The product is a management software for doctors and patients, available on web, iOS and Android, written with TypeScript on React Native. My role is primarily front-end focused, but I also work on back-end tasks and cloud functions.',
           imageCount: 0,   
-        },
+        }, */
         {
           id: 'exp2',
           title: 'CyberChallenge',
@@ -88,12 +88,12 @@ export const translations: TranslationsMap = {
           imageCount: 2,  
           images: ['/images/img0.JPG', '/images/img1.jpg'], 
         },
-        {
+        /* {
           id: 'exp3',
           title: 'Highschool internship',
           description: 'My first real contact with work was in an industrial stationery shop. Here I supported my colleagues in using the offset printing machines and during the production processes.',
           imageCount: 0,
-        },
+        }, */
       ],
   },
   },
