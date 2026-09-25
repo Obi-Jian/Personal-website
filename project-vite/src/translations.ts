@@ -59,7 +59,7 @@ export const translations: TranslationsMap = {
         description: 'A lightweight Digital Audio Workstation built from scratch in Rust to put theory into practice after studying the language and audio sampling at university. It mixes multiple WAV tracks with per-track filters (low/high/band-pass and notch), synth tracks with oscillators and a step sequencer, and a 32-step drum machine with global BPM control.',
         imageCount: 3,
         fit: 'contain',
-        images: ['/images/rust_tracks.gif', '/images/rust_drum.gif', '/images/rust_synth.gif'],
+        images: ['/images/rust_tracks.mp4', '/images/rust_drum.mp4', '/images/rust_synth.mp4'],
         links: [{ label: 'GitHub', url: 'https://github.com/Obi-Jian/Rust-Mini-DAW' }],
       },
       {
@@ -156,7 +156,7 @@ export const translations: TranslationsMap = {
         description: 'Una Digital Audio Workstation leggera, scritta da zero in Rust per mettere in pratica la teoria dopo aver studiato il linguaggio e il campionamento audio all\'università. Mixa più tracce WAV con filtri per traccia (passa-basso/alto/banda e notch), tracce synth con oscillatori e step sequencer, e una drum machine a 32 step con controllo globale del BPM.',
         imageCount: 3,
         fit: 'contain',
-        images: ['/images/rust_tracks.gif', '/images/rust_drum.gif', '/images/rust_synth.gif'],
+        images: ['/images/rust_tracks.mp4', '/images/rust_drum.mp4', '/images/rust_synth.mp4'],
         links: [{ label: 'GitHub', url: 'https://github.com/Obi-Jian/Rust-Mini-DAW' }],
       },
       {

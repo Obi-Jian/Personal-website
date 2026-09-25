@@ -126,11 +126,27 @@ function showImage(projectId: string, index: number): void {
   if (!project) return
   const images  = qsAll<Element>('.image', project)
   const countEl = project.querySelector<HTMLElement>('span.imageCount')
-  images.forEach((img, i) => img.classList.toggle('showing', i === index))
+  images.forEach((img, i) => {
+    const on = i === index
+    img.classList.toggle('showing', on)
+    if (img instanceof HTMLVideoElement) {
+      if (on) void img.play().catch(() => {})  // Low Power Mode → stays on poster
+      else img.pause()
+    }
+  })
   const t = translations[currentLang]
   if (countEl && images.length > 1) {
     countEl.textContent = t.imageOf(index + 1, images.length)
   }
+}
+
+// Start the first clip of every project (and leave the rest paused).
+function initProjectVideos(): void {
+  qsAll<HTMLElement>('.projectImages').forEach(container => {
+    qsAll<HTMLVideoElement>('video.image', container).forEach(v => {
+      if (v.classList.contains('showing')) void v.play().catch(() => {})
+    })
+  })
 }
 
 function initImageCycling(): void {
@@ -169,19 +185,19 @@ function buildProjectHTML(p: ProjectTranslation): string {
   : ''
 
   const techHTML  = p.tech ? `<p class="projectTech">${p.tech}</p>` : ''
-  const linksHTML = p.links?.length
-    ? `<div class="projectLinks">${p.links.map(l =>
-        `<a class="projectLink" href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`
-      ).join('')}</div>`
-    : ''
+
+  // The title itself is the link to the project (e.g. its GitHub repo).
+  const href = p.links?.[0]?.url
+  const titleHTML = href
+    ? `<a class="projectTitle projectTitleLink" href="${href}" target="_blank" rel="noopener">${p.title}</a>`
+    : `<span class="projectTitle">${p.title}</span>`
 
   return `
     <div class="project${multiClass}${classicClass}" id="${p.id}">
-      <span class="projectTitle">${p.title}</span>
+      ${titleHTML}
       ${techHTML}
       <p class="projectDescription">${p.description}</p>
       ${previewHTML}
-      ${linksHTML}
     </div>`
 }
 
@@ -189,8 +205,16 @@ function buildImagesHTML(p: ProjectTranslation): string {
   const sources = p.images ?? []
   const fitClass = p.fit === 'contain' ? ' image--contain' : ''
   return sources.map((src, i) => {
-    const showClass = i === 0 ? ' showing' : ''
-    return `<img class="image${showClass}${fitClass}" src="${src}" alt="${p.title}" loading="lazy" decoding="async" />`
+    const cls = `image${i === 0 ? ' showing' : ''}${fitClass}`
+    // Motion media is served as <video>, not GIF: iOS won't animate large GIFs
+    // (huge decoded-frame budget) but plays H.264 fine. `poster` shows the first
+    // frame when autoplay is unavailable (e.g. iOS Low Power Mode). JS controls
+    // play/pause per visible clip, so no `autoplay` attribute is needed.
+    if (/\.(mp4|webm)$/i.test(src)) {
+      const poster = src.replace(/\.(mp4|webm)$/i, '.jpg')
+      return `<video class="${cls}" src="${src}" poster="${poster}" muted loop playsinline preload="metadata" aria-label="${p.title}"></video>`
+    }
+    return `<img class="${cls}" src="${src}" alt="${p.title}" loading="lazy" decoding="async" />`
   }).join('\n')
 }
 
@@ -253,6 +277,7 @@ function applyTranslations(lang: Lang): void {
 
   // init cycling UNA VOLTA SOLA dopo che tutto il DOM è pronto
   initImageCycling()
+  initProjectVideos()
 
   // lang buttons
   document.querySelectorAll<HTMLElement>('.langBtn').forEach(btn => {

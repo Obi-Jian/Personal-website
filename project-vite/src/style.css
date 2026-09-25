@@ -124,7 +124,9 @@ body.videoFallback #bgFallback { opacity: 0.40; }
   position: relative;
   z-index: 10;
   margin: var(--margin-top) var(--margin-h) 0;
-  margin-top: max(var(--margin-top), env(safe-area-inset-top) + 8px);
+  /* Margine superiore di TUTTO il contenuto. Alza il valore sottratto ("- 8px")
+     per spostarlo ancora più su; funziona a ogni breakpoint e anche con la notch. */
+  margin-top: max(calc(var(--margin-top) - 14px), env(safe-area-inset-top));
   padding-bottom: 60px;
 }
 
@@ -143,7 +145,7 @@ body.loaded .fadeOnLoad {
 /* ─── Lang switcher ──────────────────────────────────────────────────────── */
 #langSwitcher {
   position: fixed;
-  top: var(--margin-top);
+  top: calc(var(--margin-top) - 8px);  /* allineato al margine superiore del contenuto */
   right: var(--margin-h);
   z-index: 30;
   display: flex;
@@ -214,8 +216,10 @@ body.openPanel .siteMeta     { color: var(--muted); }
 .navLink.active { color: var(--fg); }
 
 /* ─── Expandable panels ──────────────────────────────────────────────────── */
-/* When a panel is scrolled to the top (on open), leave room above the title. */
-.expandablePanel { scroll-margin-top: var(--margin-top); }
+/* Punto d'arrivo dello scroll all'apertura di un pannello.
+   Valore più PICCOLO = la pagina scorre più in basso (titolo più in alto).
+   Si può usare anche un valore negativo per spingerlo oltre il bordo. */
+.expandablePanel { scroll-margin-top: 3px; }
 .expandablePanelTrigger {
   display: inline-block;
   color: var(--muted);
@@ -253,8 +257,8 @@ body.openPanel .siteMeta     { color: var(--muted); }
    padding-free lets it collapse fully to 0 when closed (Safari would otherwise
    keep the padding height, spacing the nav items apart). */
 .expandablePanelContent > * {
-  padding-top: 30px;
-  padding-bottom: 60px;
+  padding-top: 0px;
+  padding-bottom: 30px;
 }
 .expandablePanel.open .expandablePanelContent {
   opacity: 1;
@@ -295,13 +299,13 @@ body.openPanel .siteMeta     { color: var(--muted); }
 }
 .smallerText p            { margin-bottom: 1.4em; }
 .smallerText p:last-child { margin-bottom: 0; }
-.smallerText a            { border-bottom: 1px solid currentColor; padding-bottom: 1px; }
+.smallerText a            { border-bottom: 2px dashed var(--fg); padding-bottom: 0; }
 
 #aboutSectionContent { width: 87.5%; }
 
 /* ─── Projects ───────────────────────────────────────────────────────────── */
 #projects  { margin-bottom: 20px; }
-.project   { margin-bottom: 10px; }
+.project   { margin-bottom: 8px; }
 
 .projectPreview {
   position: relative;
@@ -339,9 +343,12 @@ body.openPanel .siteMeta     { color: var(--muted); }
   display: inline-block;
   color: var(--tit);
   transition: color var(--dur) var(--ease);
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   font-size: var(--font-size-title);
 }
+/* Title-as-link (opens the project's GitHub): subtle interactive cue */
+.projectTitleLink { cursor: pointer; }
+.projectTitleLink:hover { color: var(--fg); }
 
 /* Tech stack meta line (under the title) */
 .projectTech {
@@ -358,13 +365,14 @@ body.openPanel .siteMeta     { color: var(--muted); }
   display: flex;
   flex-wrap: wrap;
   gap: 18px;
-  margin-top: 24px;
+  margin-top: 2px;
 }
 .projectLink {
   color: var(--tit);
-  border-bottom: 1px solid var(--fg);
+  border-bottom: 2px dashed var(--fg);
   font-size: var(--font-size-2);
-  padding-bottom: 1px;
+  padding-bottom: 0;
+  line-height: 1.05;
   transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
 .projectLink:hover { color: var(--muted); border-color: var(--muted); }
@@ -412,7 +420,8 @@ body.openPanel .siteMeta     { color: var(--muted); }
 
 .contactLink {
   color: var(--tit);
-  border-bottom: 1px solid var(--fg);
+  border-bottom: 2px dashed var(--fg);
+  padding-bottom: 4;
   display: inline-block;
   margin-bottom: 4px;
   transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
@@ -444,8 +453,8 @@ body.openPanel .siteMeta     { color: var(--muted); }
 
   .wrapper              { padding-top: 10px; padding-bottom: 80px; }
   .projectPreview       { width: 100%; }
-  .projectDescription   { width: 100%; margin-bottom: 16px; }
-  .project              { margin-bottom: 50px; }
+  .projectDescription   { width: 100%; margin-bottom: 16px; } /*IMPORTANTE*/
+  .project              { margin-bottom: 30px; }
   .imageCount           { margin-top: 16px; }
   #aboutSectionContent  { width: 100%; }
   .smallerText          { font-size: 5vw; line-height: 1.35; }
@@ -481,7 +490,7 @@ body.openPanel .siteMeta     { color: var(--muted); }
   .wrapper              { padding-top: 10px; padding-bottom: 90px; }
   .projectPreview       { width: 100%; }
   .projectDescription   { width: 100%; margin-bottom: 20px; }
-  .project              { margin-bottom: 60px; }
+  .project              { margin-bottom: 48px; }
   .imageCount           { margin-top: 20px; }
   #aboutSectionContent  { width: 100%; }
   .smallerText          { font-size: 4.5vw; line-height: 1.3; }
@@ -517,7 +526,7 @@ body.openPanel .siteMeta     { color: var(--muted); }
   .projectPreview     { width: 80%; }
   .projectDescription { width: 80%; }
   .smallerText        { font-size: 4vw; }
-  .project            { margin-bottom: 50px; }
+  .project            { margin-bottom: 40px; }
 }
 
 /* ── lg: Tablet portrait / small laptops (768px – 1023px) ───────────────── */
@@ -535,7 +544,7 @@ body.openPanel .siteMeta     { color: var(--muted); }
   .projectPreview     { width: 75%; }
   .projectDescription { width: 75%; }
   .smallerText        { font-size: 3.5vw; }
-  .project            { margin-bottom: 40px; }
+  .project            { margin-bottom: 32px; }
 }
 
 /* ── xl: Tablets landscape / laptops (1024px – 1279px) ──────────────────── */
