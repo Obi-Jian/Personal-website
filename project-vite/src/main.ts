@@ -7,6 +7,22 @@ import type { Lang, ProjectTranslation } from './types'
 let currentLang: Lang = (localStorage.getItem('lang') as Lang | null) ?? 'en'
 const imageIndexes: Record<string, number> = {}
 
+// Deep-link mapping: panel id ↔ url hash slug
+const HASH_BY_PANEL: Record<string, string> = {
+  aboutPanel:      'about',
+  workPanel:       'work',
+  projectsPanel:   'projects',
+  experiencePanel: 'experience',
+  contactPanel:    'contact',
+}
+const PANEL_BY_HASH: Record<string, string> = {
+  about:      'aboutPanel',
+  work:       'workPanel',
+  projects:   'projectsPanel',
+  experience: 'experiencePanel',
+  contact:    'contactPanel',
+}
+
 // ─── DOM helpers ──────────────────────────────────────────────────────────────
 
 function qs<T extends Element>(sel: string, root: Element | Document = document): T {
@@ -19,55 +35,105 @@ function qsAll<T extends Element>(sel: string, root: Element | Document = docume
   return Array.from(root.querySelectorAll<T>(sel))
 }
 
+const prefersReducedMotion = (): boolean =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 // ─── Expandable panels ────────────────────────────────────────────────────────
+// Opacity/entrance transforms live in CSS (keyed on `.open`); JS only drives the
+// height animation, which needs a measured pixel value to transition from/to.
 
 function openPanel(panelEl: HTMLElement): void {
   const container = qs<HTMLElement>('.expandablePanelContentContainer', panelEl)
-  const content   = qs<HTMLElement>('.expandablePanelContent', panelEl)
+  const trigger   = qs<HTMLElement>('.expandablePanelTrigger', panelEl)
   panelEl.classList.add('open')
-  container.style.height = 'auto'
-  const h = container.scrollHeight
+  trigger.setAttribute('aria-expanded', 'true')
+
+  if (prefersReducedMotion()) {
+    container.style.height = 'auto'
+    return
+  }
+
+  const target = container.scrollHeight
   container.style.height = '0'
   requestAnimationFrame(() => {
-    container.style.transition = 'height .4s ease'
-    container.style.height = `${h}px`
-    content.style.transition  = 'opacity .4s .1s'
-    content.style.opacity = '1'
+    container.style.height = `${target}px`
   })
+
+  // Once open, release to `auto` so later reflows (e.g. cycling images of
+  // different aspect ratios) don't get clipped by a stale fixed height.
+  const onEnd = (e: TransitionEvent): void => {
+    if (e.propertyName !== 'height') return
+    if (panelEl.classList.contains('open')) container.style.height = 'auto'
+    container.removeEventListener('transitionend', onEnd)
+  }
+  container.addEventListener('transitionend', onEnd)
 }
 
 function closePanel(panelEl: HTMLElement): void {
   const container = qs<HTMLElement>('.expandablePanelContentContainer', panelEl)
-  const content   = qs<HTMLElement>('.expandablePanelContent', panelEl)
+  const trigger   = qs<HTMLElement>('.expandablePanelTrigger', panelEl)
   panelEl.classList.remove('open')
-  container.style.transition = 'height .4s ease'
-  container.style.height = '0'
-  content.style.transition = 'opacity .4s'
-  content.style.opacity = '0'
+  trigger.setAttribute('aria-expanded', 'false')
+
+  if (prefersReducedMotion()) {
+    container.style.height = '0'
+    return
+  }
+
+  // From `auto` → explicit px → 0 so the browser has something to animate from.
+  container.style.height = `${container.scrollHeight}px`
+  requestAnimationFrame(() => {
+    container.style.height = '0'
+  })
 }
 
 function closeAllPanels(): void {
   qsAll<HTMLElement>('.expandablePanel.open').forEach(closePanel)
 }
 
+function setHash(panelId: string | null): void {
+  const slug = panelId ? HASH_BY_PANEL[panelId] : undefined
+  const url = slug ? `#${slug}` : `${location.pathname}${location.search}`
+  history.replaceState(null, '', url)
+}
+
+function togglePanel(panelId: string): void {
+  const panel = document.getElementById(panelId)
+  if (!panel) return
+  const isOpen = panel.classList.contains('open')
+  closeAllPanels()
+  if (!isOpen) {
+    openPanel(panel)
+    document.body.classList.add('openPanel')
+    setHash(panelId)
+  } else {
+    document.body.classList.remove('openPanel')
+    setHash(null)
+  }
+}
+
 function initPanels(): void {
   qsAll<HTMLElement>('.expandablePanelTrigger').forEach(trigger => {
     trigger.addEventListener('click', (e: Event) => {
       e.preventDefault()
-      const panelId = (trigger as HTMLElement).dataset['panel']
-      if (!panelId) return
-      const panel = document.getElementById(panelId)
-      if (!panel) return
-      const isOpen = panel.classList.contains('open')
-      closeAllPanels()
-      if (!isOpen) {
-        openPanel(panel)
-        document.body.classList.add('openPanel')
-      } else {
-        document.body.classList.remove('openPanel')
-      }
+      const panelId = trigger.dataset['panel']
+      if (panelId) togglePanel(panelId)
     })
   })
+
+  // Open from a deep link (e.g. /#about) on load, and react to back/forward.
+  const openFromHash = (): void => {
+    const slug = location.hash.replace('#', '')
+    const panelId = PANEL_BY_HASH[slug]
+    if (!panelId) return
+    const panel = document.getElementById(panelId)
+    if (!panel || panel.classList.contains('open')) return
+    closeAllPanels()
+    openPanel(panel)
+    document.body.classList.add('openPanel')
+  }
+  openFromHash()
+  window.addEventListener('hashchange', openFromHash)
 }
 
 // ─── Image cycling ────────────────────────────────────────────────────────────
@@ -111,27 +177,37 @@ function buildProjectHTML(p: ProjectTranslation): string {
         <div class="projectImages">
           ${p.imageCount > 1 ? `
           <div class="imageContainerTriggerHolder">
-            <div class="imageContainerTrigger" data-project="${p.id}" data-dir="1"></div>
+            <div class="imageContainerTrigger" data-project="${p.id}" data-dir="1" role="button" tabindex="0" aria-label="Next image"></div>
           </div>` : ''}
           ${buildImagesHTML(p)}
         </div>
       </div>
-      ${p.imageCount > 1 ? `<span class="imageCount">${translations[currentLang].imageOf(1, p.imageCount)}</span>` : ''}` 
+      ${p.imageCount > 1 ? `<span class="imageCount">${translations[currentLang].imageOf(1, p.imageCount)}</span>` : ''}`
   : ''
+
+  const techHTML  = p.tech ? `<p class="projectTech">${p.tech}</p>` : ''
+  const linksHTML = p.links?.length
+    ? `<div class="projectLinks">${p.links.map(l =>
+        `<a class="projectLink" href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`
+      ).join('')}</div>`
+    : ''
 
   return `
     <div class="project${multiClass}${classicClass}" id="${p.id}">
       <span class="projectTitle">${p.title}</span>
+      ${techHTML}
       <p class="projectDescription">${p.description}</p>
       ${previewHTML}
+      ${linksHTML}
     </div>`
 }
 
 function buildImagesHTML(p: ProjectTranslation): string {
   const sources = p.images ?? []
+  const fitClass = p.fit === 'contain' ? ' image--contain' : ''
   return sources.map((src, i) => {
     const showClass = i === 0 ? ' showing' : ''
-    return `<img class="image${showClass}" src="${src}" alt="${p.title}" />`
+    return `<img class="image${showClass}${fitClass}" src="${src}" alt="${p.title}" loading="lazy" decoding="async" />`
   }).join('\n')
 }
 
@@ -143,11 +219,13 @@ function applyTranslations(lang: Lang): void {
   // nav
   const navAbout      = document.querySelector<HTMLElement>('[data-panel="aboutPanel"]')
   const navWork       = document.querySelector<HTMLElement>('[data-panel="workPanel"]')
+  const navProjects   = document.querySelector<HTMLElement>('[data-panel="projectsPanel"]')
   const navContact    = document.querySelector<HTMLElement>('[data-panel="contactPanel"]')
   const navExperience = document.querySelector<HTMLElement>('[data-panel="experiencePanel"]')
 
   if (navAbout)      navAbout.textContent      = t.nav.about
   if (navWork)       navWork.textContent       = t.nav.work
+  if (navProjects)   navProjects.textContent   = t.nav.projects
   if (navContact)    navContact.textContent    = t.nav.contact
   if (navExperience) navExperience.textContent = t.nav.experience
 
@@ -155,11 +233,9 @@ function applyTranslations(lang: Lang): void {
   const aboutContent = document.getElementById('aboutSectionContent')
   if (aboutContent) {
     aboutContent.innerHTML = `
-      <div>
-        <p style="white-space: pre-line">${t.about.intro}</p>
-        <p>${t.about.experience}</p>
-        <p>${t.about.closing}</p>
-      </div>`
+      <p style="white-space: pre-line">${t.about.intro}</p>
+      <!-- <p>${t.about.experience}</p>
+      <p>${t.about.closing}</p> -->`
   }
 
   // contact
@@ -167,14 +243,19 @@ function applyTranslations(lang: Lang): void {
   if (contactLinks) {
     contactLinks.innerHTML = `
       <a href="mailto:cuboids.plectra_3g@icloud.com" class="contactLink">${t.contact.email}</a><br>
-      <a href="https://linkedin.com/in/gianluca-colombo-milano" class="contactLink">${t.contact.linkedin}</a><br>
-      <a href="https://github.com/Obi-Jian" class="contactLink">${t.contact.github}</a>`
+      <a href="https://linkedin.com/in/gianluca-colombo-milano" class="contactLink" target="_blank" rel="noopener">${t.contact.linkedin}</a><br>
+      <a href="https://github.com/Obi-Jian" class="contactLink" target="_blank" rel="noopener">${t.contact.github}</a>`
   }
 
   // projects — renderizza PRIMA di initImageCycling
   const projectsEl = document.getElementById('projects')
   if (projectsEl) {
     projectsEl.innerHTML = t.projects.map(buildProjectHTML).join('\n')
+  }
+
+  const selectedProjectsEl = document.getElementById('selectedProjects')
+  if (selectedProjectsEl) {
+    selectedProjectsEl.innerHTML = t.selectedProjects.map(buildProjectHTML).join('\n')
   }
 
   const experienceEl = document.getElementById('experience')
@@ -184,6 +265,7 @@ function applyTranslations(lang: Lang): void {
 
   // reset indexes
   t.projects.forEach(p => { imageIndexes[p.id] = 0 })
+  t.selectedProjects.forEach(p => { imageIndexes[p.id] = 0 })
   t.experience.projects.forEach(p => { imageIndexes[p.id] = 0 })
 
   // init cycling UNA VOLTA SOLA dopo che tutto il DOM è pronto
@@ -191,7 +273,9 @@ function applyTranslations(lang: Lang): void {
 
   // lang buttons
   document.querySelectorAll<HTMLElement>('.langBtn').forEach(btn => {
-    btn.classList.toggle('langBtn--active', btn.dataset['lang'] === lang)
+    const active = btn.dataset['lang'] === lang
+    btn.classList.toggle('langBtn--active', active)
+    btn.setAttribute('aria-pressed', String(active))
   })
 
   document.documentElement.lang = lang
@@ -207,13 +291,24 @@ function initLangSwitcher(): void {
       currentLang = lang
       localStorage.setItem('lang', lang)
       applyTranslations(lang)
+      // Content length differs per language: let open panels reflow to `auto`.
       qsAll<HTMLElement>('.expandablePanel.open').forEach(panel => {
-        const container = qs<HTMLElement>('.expandablePanelContentContainer', panel)
-        container.style.height = 'auto'
-        const h = container.scrollHeight
-        container.style.height = `${h}px`
+        qs<HTMLElement>('.expandablePanelContentContainer', panel).style.height = 'auto'
       })
     })
+  })
+}
+
+// ─── Keyboard support for image cycling (role="button" divs) ──────────────────
+
+function initKeyboard(): void {
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    const target = e.target as HTMLElement | null
+    if (!target || !target.classList.contains('imageContainerTrigger')) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      target.click()
+    }
   })
 }
 
@@ -222,6 +317,12 @@ function initLangSwitcher(): void {
 function initVideo(): void {
   const video = document.getElementById('bgVideo') as HTMLVideoElement | null
   if (!video) return
+
+  if (prefersReducedMotion()) {
+    video.pause()
+    video.style.display = 'none'
+    return
+  }
 
   video.play().catch(() => {
     video.style.display = 'none'  // nasconde il video, rimane sfondo nero
@@ -235,9 +336,10 @@ function init(): void {
   applyTranslations(currentLang)
   initPanels()
   initLangSwitcher()
+  initKeyboard()
 
   document.documentElement.classList.remove('unloaded')
-  setTimeout(() => document.body.classList.add('loaded'), 50)
+  requestAnimationFrame(() => document.body.classList.add('loaded'))
 }
 
 init()

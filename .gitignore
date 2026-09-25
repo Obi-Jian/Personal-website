@@ -1,0 +1,9 @@
+# OS (repo-wide)
+.DS_Store
+**/.DS_Store
+
+# Vercel
+.vercel/
+
+# Local-only material (not part of the site)
+read/

@@ -5,6 +5,7 @@ export const translations: TranslationsMap = {
     nav: {
       about:   'About',
       work:    'Skills',
+      projects: 'Projects',
       contact: 'Contact',
       experience: 'Experience',
     },
@@ -12,9 +13,9 @@ export const translations: TranslationsMap = {
       intro:
         "I'm a computer science student at the University of Insubria.\nI graduated with a degree in graphic design and communication in 2023, and immediately enrolled in university, where I discovered my true calling.",
       experience:
-        'I\'m currently working part-time as a mobile and web developer in a tech startup.',
+        '',
       closing:
-        'I\'m looking for an internship where i translate my theoretical skills into practice :)',
+        'I\'m looking for an internship where I can turn my theoretical skills into practice :)',
     },
     contact: {
       email:     'Email',
@@ -27,7 +28,7 @@ export const translations: TranslationsMap = {
       {
         id: 'proj1',
         title: 'Java',
-        description: 'This is the language i know the best: OOP, concurrency, thread management, distributed programming. We used Java to understand concepts, algorithms and data structures.',
+        description: 'This is the language I know best: OOP, concurrency, thread management, distributed programming. We used Java to understand concepts, algorithms and data structures.',
         imageCount: 0,
       },
       {
@@ -39,8 +40,8 @@ export const translations: TranslationsMap = {
       },
       {
         id: 'proj3',
-        title: 'Web Developement',
-        description: 'This site is written with TS, HTMLS and CSS. In the web development course we studied many tools for fullstack developement, starting with HTML/CSS, bootstrap and moving on to JS and Node. In my GitHub profile, I forked the web group project we worked on in our second year, which I recently revised.',
+        title: 'Web Development',
+        description: 'This site is written with TS, HTML and CSS. In the web development course we studied many tools for fullstack development, starting with HTML/CSS and Bootstrap, then moving on to JS and Node. On my GitHub profile I forked the web group project we worked on in our second year, which I recently revised.',
         imageCount: 0,
       },
       {
@@ -50,12 +51,34 @@ export const translations: TranslationsMap = {
         imageCount: 0,
       },
     ],
-    experience: {              
+    selectedProjects: [
+      {
+        id: 'projRustDaw',
+        title: 'Rust Mini DAW',
+        tech: 'Rust · cpal · fundsp · egui',
+        description: 'A lightweight Digital Audio Workstation built from scratch in Rust to put theory into practice after studying the language and audio sampling at university. It mixes multiple WAV tracks with per-track filters (low/high/band-pass and notch), synth tracks with oscillators and a step sequencer, and a 32-step drum machine with global BPM control.',
+        imageCount: 3,
+        fit: 'contain',
+        images: ['/images/rust_tracks.gif', '/images/rust_drum.gif', '/images/rust_synth.gif'],
+        links: [{ label: 'GitHub', url: 'https://github.com/Obi-Jian/Rust-Mini-DAW' }],
+      },
+      {
+        id: 'projEda',
+        title: 'Stress Classification from EDA',
+        tech: 'Python · scipy · scikit-learn · pandas',
+        description: 'An individual, from-scratch reproduction of the Zangróniz et al. (2017) pipeline for binary stress/baseline classification from the electrodermal activity (EDA) signal, applied to the public WESAD dataset. Full pipeline: digital filtering, tonic/phasic (SCL/SCR) decomposition, 22 features, several classifiers and Leave-One-Subject-Out validation. Best model: a linear SVM at 86% accuracy, with a detailed comparison against the original paper.',
+        imageCount: 3,
+        fit: 'contain',
+        images: ['/images/eda_comparison.png', '/images/eda_confusion.png', '/images/eda_importance.png'],
+        links: [{ label: 'GitHub', url: 'https://github.com/Obi-Jian/EDA-Stress-Classification-WESAD' }],
+      },
+    ],
+    experience: {
       projects: [
         {
           id: 'exp1',
           title: 'IsyPatient',
-          description: 'What do i work on? The product is a management software for doctors and patients, available on web, iOS and Android, written with TypeScript on React Native. My role is primarely front-end focused, but I also work on back-end tasks and on cloud functions.',
+          description: 'What do I work on? The product is a management software for doctors and patients, available on web, iOS and Android, written with TypeScript on React Native. My role is primarily front-end focused, but I also work on back-end tasks and cloud functions.',
           imageCount: 0,   
         },
         {
@@ -67,7 +90,7 @@ export const translations: TranslationsMap = {
         },
         {
           id: 'exp3',
-          title: 'Highshcool internship',
+          title: 'Highschool internship',
           description: 'My first real contact with work was in an industrial stationery shop. Here I supported my colleagues in using the offset printing machines and during the production processes.',
           imageCount: 0,
         },
@@ -79,6 +102,7 @@ export const translations: TranslationsMap = {
     nav: {
       about:   'Chi sono',
       work:    'Skills',
+      projects: 'Progetti',
       contact: 'Contatti',
       experience: 'Esperienza',
     },
@@ -86,9 +110,9 @@ export const translations: TranslationsMap = {
       intro:
         "Sono uno studente all'ultimo anno di informatica presso l\'Università degli studi dell\'Insubria.\nDiplomato in grafica e comunicazione nel 2023, mi sono subito iscritto all'università e ho scoperto la mia vera strada.",
       experience:
-        'Al momento lavoro part time come sviluppatore mobile e web in una startup tech.',
+        '',
       closing:
-        'Sono alla ricerca di un tirocinio che possa traddure le mie capacità teoriche in pratica :)',
+        'Sono alla ricerca di un tirocinio che mi permetta di tradurre in pratica le mie competenze teoriche :)',
     },
     contact: {
       email:     'Email',
@@ -124,27 +148,49 @@ export const translations: TranslationsMap = {
         imageCount: 0,
       },
     ],
-    experience: {               
+    selectedProjects: [
+      {
+        id: 'projRustDaw',
+        title: 'Rust Mini DAW',
+        tech: 'Rust · cpal · fundsp · egui',
+        description: 'Una Digital Audio Workstation leggera, scritta da zero in Rust per mettere in pratica la teoria dopo aver studiato il linguaggio e il campionamento audio all\'università. Mixa più tracce WAV con filtri per traccia (passa-basso/alto/banda e notch), tracce synth con oscillatori e step sequencer, e una drum machine a 32 step con controllo globale del BPM.',
+        imageCount: 3,
+        fit: 'contain',
+        images: ['/images/rust_tracks.gif', '/images/rust_drum.gif', '/images/rust_synth.gif'],
+        links: [{ label: 'GitHub', url: 'https://github.com/Obi-Jian/Rust-Mini-DAW' }],
+      },
+      {
+        id: 'projEda',
+        title: 'Classificazione dello stress da EDA',
+        tech: 'Python · scipy · scikit-learn · pandas',
+        description: 'Riproduzione individuale, riscritta da zero, della pipeline di Zangróniz et al. (2017) per la classificazione binaria stress/baseline dal segnale di attività elettrodermica (EDA), applicata al dataset pubblico WESAD. Pipeline completa: filtraggio digitale, decomposizione tonica/fasica (SCL/SCR), 22 feature, più classificatori e validazione Leave-One-Subject-Out. Modello migliore: una SVM lineare all\'86% di accuratezza, con un confronto dettagliato rispetto al paper originale.',
+        imageCount: 3,
+        fit: 'contain',
+        images: ['/images/eda_comparison.png', '/images/eda_confusion.png', '/images/eda_importance.png'],
+        links: [{ label: 'GitHub', url: 'https://github.com/Obi-Jian/EDA-Stress-Classification-WESAD' }],
+      },
+    ],
+    experience: {
       projects: [
-        {
+        /* {
           id: 'Lavoro 1',
           title: 'IsyPatient',
-          description: 'Su cosa lavoro? Il prodotto è un gestionale per medici e pazienti disponibile su web, iOS e android, scritto in TypeScript con React Native. Il mio ruolo attualmente si concentra sul front-end, ma ho svolgo anche task di back-end e su cloud functions.',
+          description: 'Su cosa lavoro? Il prodotto è un gestionale per medici e pazienti disponibile su web, iOS e Android, scritto in TypeScript con React Native. Il mio ruolo attualmente si concentra sul front-end, ma svolgo anche task di back-end e cloud functions.',
           imageCount: 0,   
-        },
+        }, */
         {
           id: 'CyberChallenge',
           title: 'CyberChallenge',
-          description: 'Cyberchallenge é un programma nazionale di addestramento nell’ambito della sicurezza. Tutto il corso si è svolto attorno a esercizi riguardo crittografia, sicurezza web/software/netowrk, con lo scopo di portare i migliori dell\'istituto alla gara nazionale. È sata l\'esperienza più formativa del mio percorso di studi e si è conclusa positivamente, guadagnandomi la possibilità di rappresentare la mia università alla competizione finale. La gara consiste in una CTF di 6 ore in cui il punteggio finale è calcolato in base alle flag rubate e perse, alla capacità di mantenere online i servizi e altri fattori come tempo di exploit o l\'abilità di trovare prima degli altri le flags.',
+          description: 'CyberChallenge è un programma nazionale di addestramento nell\'ambito della sicurezza. Tutto il corso si è svolto attorno a esercizi di crittografia e sicurezza web/software/network, con lo scopo di portare i migliori dell\'istituto alla gara nazionale. È stata l\'esperienza più formativa del mio percorso di studi e si è conclusa positivamente, guadagnandomi la possibilità di rappresentare la mia università alla competizione finale. La gara consiste in una CTF di 6 ore in cui il punteggio finale è calcolato in base alle flag rubate e perse, alla capacità di mantenere online i servizi e ad altri fattori come il tempo di exploit o l\'abilità di trovare le flag prima degli altri.',
           imageCount: 2,
           images: ['/images/img0.JPG', '/images/img1.jpg'],
         },
-        {
+        /* {
           id: 'Stage scuole superiori',
           title: 'Grafica Piera',
-          description: 'Il mio primo vero contatto con il mondo del lavoro è stato in una cartoleria industrialie. Qui ho affiancavo i miei colleghi nell\’utilizzo dei macchinari di stampa OFFSET e durante i processi produttivi.',
+          description: 'Il mio primo vero contatto con il mondo del lavoro è stato in una cartoleria industriale. Qui affiancavo i miei colleghi nell\'utilizzo dei macchinari di stampa offset e durante i processi produttivi.',
           imageCount: 0,
-        },
+        }, */
       ],
     },
   },
