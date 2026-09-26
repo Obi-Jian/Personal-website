@@ -633,7 +633,7 @@ body.openPanel .siteMeta     { color: var(--muted); }
   }
 
   #langSwitcher { top: var(--margin-top); bottom: auto; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; }
-  .wrapper      { padding-bottom: 30px; }
+  .wrapper      { padding-bottom: 40px; }
 }
 
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */

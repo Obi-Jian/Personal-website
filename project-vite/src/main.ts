@@ -63,31 +63,77 @@ function setHash(panelId: string | null): void {
   history.replaceState(null, '', url)
 }
 
-// The element that actually scrolls: html/body height + overflow rules make the
-// <body> the scroller here, not the window/documentElement.
-function scrollerEl(): HTMLElement {
-  const de = document.documentElement
-  return de.scrollHeight > de.clientHeight + 1 ? de : document.body
+// Robust scroll helpers. Browsers disagree on which element is the scroller:
+// this site's `html,body { height:100%; overflow }` makes it ambiguous, and the
+// choice differs across Chrome / Firefox / Safari and even by orientation (that's
+// why closing a panel "returned to top" only in some browsers). So we WRITE to
+// both <html> and <body> — the one that isn't the scroller silently ignores it —
+// and READ from whichever reports a position.
+function scrollTopNow(): number {
+  return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
+}
+function setScrollTop(v: number): void {
+  document.documentElement.scrollTop = v
+  document.body.scrollTop = v
+}
+function maxScrollTop(): number {
+  const sh = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)
+  return Math.max(0, sh - window.innerHeight)
+}
+
+// Trailing runway so ANY panel — even a short one like Contacts on a short
+// (landscape) viewport — can scroll its title all the way to the top. Without it
+// the last/short section can't reach the top and its title ends up clipped
+// mid-screen. Sized to exactly the shortfall (0 for tall sections) so there is no
+// wasted empty space on the sections that are already long enough.
+let scrollSpacer: HTMLElement | null = null
+function setRunwayFor(panel: HTMLElement): void {
+  if (!scrollSpacer) {
+    scrollSpacer = document.createElement('div')
+    scrollSpacer.setAttribute('aria-hidden', 'true')
+    scrollSpacer.style.cssText = 'width:1px;pointer-events:none;'
+    document.body.appendChild(scrollSpacer)
+  }
+  const trigger = panel.querySelector<HTMLElement>('.expandablePanelTrigger')
+  const content = panel.querySelector<HTMLElement>('.expandablePanelContent')
+  const offset  = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0
+  const below   = (trigger?.offsetHeight ?? 0) + (content?.scrollHeight ?? 0)
+  scrollSpacer.style.height = `${Math.max(0, window.innerHeight - offset - below)}px`
+}
+function clearRunway(): void {
+  if (scrollSpacer) scrollSpacer.style.height = '0px'
 }
 
 // Scroll so `panel`'s title sits at the top — starting immediately (no wait) and
 // re-reading the target/limit each frame, so it "follows" the panel as it expands
-// instead of waiting for the animation to finish. This removes the perceived
-// delay. Offset comes from the CSS `scroll-margin-top` on `.expandablePanel`.
+// instead of waiting for the animation to finish. Offset comes from the CSS
+// `scroll-margin-top` on `.expandablePanel`.
 function scrollPanelToTop(panel: HTMLElement): void {
-  const el     = scrollerEl()
-  const offset = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0
-  const start  = el.scrollTop
+  const offset  = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0
+  const start   = scrollTopNow()
   const t0      = performance.now()
-  const dur    = prefersReducedMotion() ? 0 : 380
+  const dur     = prefersReducedMotion() ? 0 : 380
   const easeOut = (x: number): number => 1 - Math.pow(1 - x, 3)
-
   const step = (now: number): void => {
     const p       = dur ? Math.min(1, (now - t0) / dur) : 1
-    const wantDoc = panel.getBoundingClientRect().top + el.scrollTop - offset
-    const maxTop  = el.scrollHeight - el.clientHeight
-    const target  = Math.max(0, Math.min(wantDoc, maxTop))
-    el.scrollTop  = start + (target - start) * easeOut(p)
+    const wantDoc = panel.getBoundingClientRect().top + scrollTopNow() - offset
+    const target  = Math.max(0, Math.min(wantDoc, maxScrollTop()))
+    setScrollTop(start + (target - start) * easeOut(p))
+    if (p < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+}
+
+// Animate back to the very top (used when closing a panel).
+function scrollToTop(): void {
+  const start = scrollTopNow()
+  if (start <= 0) return
+  const t0      = performance.now()
+  const dur     = prefersReducedMotion() ? 0 : 340
+  const easeOut = (x: number): number => 1 - Math.pow(1 - x, 3)
+  const step = (now: number): void => {
+    const p = dur ? Math.min(1, (now - t0) / dur) : 1
+    setScrollTop(start * (1 - easeOut(p)))
     if (p < 1) requestAnimationFrame(step)
   }
   requestAnimationFrame(step)
@@ -101,6 +147,8 @@ function togglePanel(panelId: string): void {
     closeAllPanels()
     document.body.classList.remove('openPanel')
     setHash(null)
+    clearRunway()
+    scrollToTop()
     return
   }
 
@@ -108,6 +156,7 @@ function togglePanel(panelId: string): void {
   openPanel(panel)
   document.body.classList.add('openPanel')
   setHash(panelId)
+  setRunwayFor(panel)
   scrollPanelToTop(panel)
 }
 
@@ -130,6 +179,7 @@ function initPanels(): void {
     closeAllPanels()
     openPanel(panel)
     document.body.classList.add('openPanel')
+    setRunwayFor(panel)
     scrollPanelToTop(panel)
   }
   openFromHash()
