@@ -63,12 +63,8 @@ function setHash(panelId: string | null): void {
   history.replaceState(null, '', url)
 }
 
-// Robust scroll helpers. Browsers disagree on which element is the scroller:
-// this site's `html,body { height:100%; overflow }` makes it ambiguous, and the
-// choice differs across Chrome / Firefox / Safari and even by orientation (that's
-// why closing a panel "returned to top" only in some browsers). So we WRITE to
-// both <html> and <body> — the one that isn't the scroller silently ignores it —
-// and READ from whichever reports a position.
+// Robust scroll helpers: we WRITE to both <html> and <body> — the one that isn't
+// the scroller silently ignores it — and READ from whichever reports a position.
 function scrollTopNow(): number {
   return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
 }
@@ -76,16 +72,58 @@ function setScrollTop(v: number): void {
   document.documentElement.scrollTop = v
   document.body.scrollTop = v
 }
-function maxScrollTop(): number {
-  const sh = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)
-  return Math.max(0, sh - window.innerHeight)
+
+// Landscape / desktop → the adaptive "bring the clicked title to the top" scroll.
+// Portrait (phones and any device held vertically) → just go back to the top:
+// there the adaptive scroll proved fragile across mobile browsers, and going to
+// the top keeps the main title visible, which is what we want on a tall screen.
+const isLandscape = (): boolean => window.matchMedia('(orientation: landscape)').matches
+
+// Smoothly animate the scroller to a FIXED target (monotonic easing → no flicker).
+function animateScrollTo(target: number): void {
+  const start = scrollTopNow()
+  if (Math.abs(target - start) < 1) { setScrollTop(target); return }
+  const t0      = performance.now()
+  const dur     = prefersReducedMotion() ? 0 : 380
+  const easeOut = (x: number): number => 1 - Math.pow(1 - x, 3)
+  const step = (now: number): void => {
+    const p = dur ? Math.min(1, (now - t0) / dur) : 1
+    setScrollTop(start + (target - start) * easeOut(p))
+    if (p < 1) requestAnimationFrame(step)
+    else setScrollTop(target)
+  }
+  requestAnimationFrame(step)
 }
 
-// Trailing runway so ANY panel — even a short one like Contacts on a short
-// (landscape) viewport — can scroll its title all the way to the top. Without it
-// the last/short section can't reach the top and its title ends up clipped
-// mid-screen. Sized to exactly the shortfall (0 for tall sections) so there is no
-// wasted empty space on the sections that are already long enough.
+function scrollToTop(): void {
+  animateScrollTo(0)
+}
+
+// Document-absolute top of an element (walks the offsetParent chain).
+function documentTop(el: HTMLElement): number {
+  let y = 0
+  let node: HTMLElement | null = el
+  while (node) { y += node.offsetTop; node = node.offsetParent as HTMLElement | null }
+  return y
+}
+
+// The FINAL scroll position that puts `panel`'s title at the top, measured with
+// every panel momentarily collapsed (`html.measuring`) so the target is the
+// settled-layout value and doesn't chase the animating grid height (no flicker).
+function panelScrollTarget(panel: HTMLElement): number {
+  const offset  = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0
+  const trigger = panel.querySelector<HTMLElement>('.expandablePanelTrigger')
+  if (!trigger) return 0
+  const root = document.documentElement
+  root.classList.add('measuring')
+  const top = documentTop(trigger) - offset            // forces a collapsed-state reflow
+  root.classList.remove('measuring')
+  return Math.max(0, top)
+}
+
+// Trailing runway so even a short panel (e.g. Contacts) can bring its title to the
+// top on a short landscape viewport. Sized to exactly the shortfall (0 for tall
+// sections). Only used in the landscape/desktop path.
 let scrollSpacer: HTMLElement | null = null
 function setRunwayFor(panel: HTMLElement): void {
   if (!scrollSpacer) {
@@ -104,39 +142,16 @@ function clearRunway(): void {
   if (scrollSpacer) scrollSpacer.style.height = '0px'
 }
 
-// Scroll so `panel`'s title sits at the top — starting immediately (no wait) and
-// re-reading the target/limit each frame, so it "follows" the panel as it expands
-// instead of waiting for the animation to finish. Offset comes from the CSS
-// `scroll-margin-top` on `.expandablePanel`.
-function scrollPanelToTop(panel: HTMLElement): void {
-  const offset  = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0
-  const start   = scrollTopNow()
-  const t0      = performance.now()
-  const dur     = prefersReducedMotion() ? 0 : 380
-  const easeOut = (x: number): number => 1 - Math.pow(1 - x, 3)
-  const step = (now: number): void => {
-    const p       = dur ? Math.min(1, (now - t0) / dur) : 1
-    const wantDoc = panel.getBoundingClientRect().top + scrollTopNow() - offset
-    const target  = Math.max(0, Math.min(wantDoc, maxScrollTop()))
-    setScrollTop(start + (target - start) * easeOut(p))
-    if (p < 1) requestAnimationFrame(step)
+// Scroll on opening a panel: adaptive (title→top) in landscape/desktop, plain
+// scroll-to-top in portrait.
+function scrollOnOpen(panel: HTMLElement): void {
+  if (isLandscape()) {
+    setRunwayFor(panel)
+    animateScrollTo(panelScrollTarget(panel))
+  } else {
+    clearRunway()
+    scrollToTop()
   }
-  requestAnimationFrame(step)
-}
-
-// Animate back to the very top (used when closing a panel).
-function scrollToTop(): void {
-  const start = scrollTopNow()
-  if (start <= 0) return
-  const t0      = performance.now()
-  const dur     = prefersReducedMotion() ? 0 : 340
-  const easeOut = (x: number): number => 1 - Math.pow(1 - x, 3)
-  const step = (now: number): void => {
-    const p = dur ? Math.min(1, (now - t0) / dur) : 1
-    setScrollTop(start * (1 - easeOut(p)))
-    if (p < 1) requestAnimationFrame(step)
-  }
-  requestAnimationFrame(step)
 }
 
 function togglePanel(panelId: string): void {
@@ -156,8 +171,7 @@ function togglePanel(panelId: string): void {
   openPanel(panel)
   document.body.classList.add('openPanel')
   setHash(panelId)
-  setRunwayFor(panel)
-  scrollPanelToTop(panel)
+  scrollOnOpen(panel)
 }
 
 function initPanels(): void {
@@ -179,8 +193,7 @@ function initPanels(): void {
     closeAllPanels()
     openPanel(panel)
     document.body.classList.add('openPanel')
-    setRunwayFor(panel)
-    scrollPanelToTop(panel)
+    scrollOnOpen(panel)
   }
   openFromHash()
   window.addEventListener('hashchange', openFromHash)
@@ -289,6 +302,10 @@ function buildImagesHTML(p: ProjectTranslation): string {
 
 function applyTranslations(lang: Lang): void {
   const t = translations[lang]
+
+  // site title role ("Student" / "Studente")
+  const siteRole = document.getElementById('siteRole')
+  if (siteRole) siteRole.textContent = t.siteRole
 
   // nav
   const navAbout      = document.querySelector<HTMLElement>('[data-panel="aboutPanel"]')

@@ -19,6 +19,7 @@ export interface ProjectTranslation {
 }
 
 export interface Translations {
+  readonly siteRole: string
   readonly nav: {
     readonly about:   string
     readonly work:    string

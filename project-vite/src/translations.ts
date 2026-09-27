@@ -2,6 +2,7 @@ import type { TranslationsMap } from './types'
 
 export const translations: TranslationsMap = {
   en: {
+    siteRole: 'Computer science student',
     nav: {
       about:   'About',
       work:    'Skills',
@@ -56,7 +57,7 @@ export const translations: TranslationsMap = {
         id: 'projRustDaw',
         title: 'Rust Mini DAW',
         tech: 'Rust · cpal · fundsp · egui',
-        description: 'A lightweight Digital Audio Workstation built from scratch in Rust to put theory into practice after studying the language and audio sampling at university. It mixes multiple WAV tracks with per-track filters (low/high/band-pass and notch), synth tracks with oscillators and a step sequencer, and a 32-step drum machine with global BPM control.',
+        description: 'A lightweight Digital Audio Workstation built from scratch in Rust. It can mix WAV tracks, add filters, make simple synth with oscillators and comprends a 32-step drum machine with global BPM control.',
         imageCount: 3,
         fit: 'contain',
         images: ['/images/rust_tracks.mp4', '/images/rust_drum.mp4', '/images/rust_synth.mp4'],
@@ -66,7 +67,7 @@ export const translations: TranslationsMap = {
         id: 'projEda',
         title: 'Stress Classification from EDA',
         tech: 'Python · scipy · scikit-learn · pandas',
-        description: 'An individual, from-scratch reproduction of the Zangróniz et al. (2017) pipeline for binary stress/baseline classification from the electrodermal activity (EDA) signal, applied to the public WESAD dataset. Full pipeline: digital filtering, tonic/phasic (SCL/SCR) decomposition, 22 features, several classifiers and Leave-One-Subject-Out validation. Best model: a linear SVM at 86% accuracy, with a detailed comparison against the original paper.',
+        description: 'A from-scratch reproduction of a scientific paper\'s pipeline for binary stress/baseline classification from the electrodermal activity (EDA) signal, applied to the public WESAD dataset.',
         imageCount: 3,
         fit: 'contain',
         images: ['/images/eda_comparison.png', '/images/eda_confusion.png', '/images/eda_importance.png'],
@@ -84,7 +85,7 @@ export const translations: TranslationsMap = {
         {
           id: 'exp2',
           title: 'CyberChallenge',
-          description: 'Cyberchallenge is a national security training program. The entire course focused on exercises in cryptography, web/software/network security, with the aim of bringing the best students from the institute to the national competition. It was the most formative experience of my studies and ended positively, earning me the opportunity to represent my university in the final competition. The competition consists of a 6-hour CTF in which the final score is calculated based on stolen and lost flags, the ability to keep services online, and other factors such as exploit time or the ability to find the flags first.',
+          description: 'Cyberchallenge is a national security training program. The entire course focused on exercises in cryptography, web/software/network security, with the aim of bringing the best students from the institute to the national competition. It was the most formative experience of my studies and ended positively, earning me the opportunity to represent my university in the final competition.',
           imageCount: 2,  
           images: ['/images/img0.JPG', '/images/img1.jpg'], 
         },
@@ -99,9 +100,10 @@ export const translations: TranslationsMap = {
   },
 
   it: {
+    siteRole: 'Studente di informatica',
     nav: {
       about:   'Chi sono',
-      work:    'Skills',
+      work:    'Competenze',
       projects: 'Progetti',
       contact: 'Contatti',
       experience: 'Esperienza',
@@ -153,7 +155,7 @@ export const translations: TranslationsMap = {
         id: 'projRustDaw',
         title: 'Rust Mini DAW',
         tech: 'Rust · cpal · fundsp · egui',
-        description: 'Una Digital Audio Workstation leggera, scritta da zero in Rust per mettere in pratica la teoria dopo aver studiato il linguaggio e il campionamento audio all\'università. Mixa più tracce WAV con filtri per traccia (passa-basso/alto/banda e notch), tracce synth con oscillatori e step sequencer, e una drum machine a 32 step con controllo globale del BPM.',
+        description: 'Una Digital Audio Workstation leggera, scritta da zero in Rust. Può mixare tracce WAV, aggiungere filtri, creare synth semplici con oscillatori e comprende una drum machine a 32 step con controllo globale del BPM.',
         imageCount: 3,
         fit: 'contain',
         images: ['/images/rust_tracks.mp4', '/images/rust_drum.mp4', '/images/rust_synth.mp4'],
@@ -163,7 +165,7 @@ export const translations: TranslationsMap = {
         id: 'projEda',
         title: 'Classificazione dello stress da EDA',
         tech: 'Python · scipy · scikit-learn · pandas',
-        description: 'Riproduzione individuale, riscritta da zero, della pipeline di Zangróniz et al. (2017) per la classificazione binaria stress/baseline dal segnale di attività elettrodermica (EDA), applicata al dataset pubblico WESAD. Pipeline completa: filtraggio digitale, decomposizione tonica/fasica (SCL/SCR), 22 feature, più classificatori e validazione Leave-One-Subject-Out. Modello migliore: una SVM lineare all\'86% di accuratezza, con un confronto dettagliato rispetto al paper originale.',
+        description: 'Una riproduzione scritta da zero di un paper scientifico per la classificazione binaria stress/baseline dal segnale di attività elettrodermica (EDA), applicata al dataset pubblico WESAD.',
         imageCount: 3,
         fit: 'contain',
         images: ['/images/eda_comparison.png', '/images/eda_confusion.png', '/images/eda_importance.png'],
@@ -181,7 +183,7 @@ export const translations: TranslationsMap = {
         {
           id: 'CyberChallenge',
           title: 'CyberChallenge',
-          description: 'CyberChallenge è un programma nazionale di addestramento nell\'ambito della sicurezza. Tutto il corso si è svolto attorno a esercizi di crittografia e sicurezza web/software/network, con lo scopo di portare i migliori dell\'istituto alla gara nazionale. È stata l\'esperienza più formativa del mio percorso di studi e si è conclusa positivamente, guadagnandomi la possibilità di rappresentare la mia università alla competizione finale. La gara consiste in una CTF di 6 ore in cui il punteggio finale è calcolato in base alle flag rubate e perse, alla capacità di mantenere online i servizi e ad altri fattori come il tempo di exploit o l\'abilità di trovare le flag prima degli altri.',
+          description: 'CyberChallenge è un programma nazionale di addestramento nell\'ambito della sicurezza. Tutto il corso si è svolto attorno a esercizi di crittografia e sicurezza web/software/network, con lo scopo di portare i migliori dell\'istituto alla gara nazionale. È stata l\'esperienza più formativa del mio percorso di studi e si è conclusa positivamente, guadagnandomi la possibilità di rappresentare la mia università alla competizione finale.',
           imageCount: 2,
           images: ['/images/img0.JPG', '/images/img1.jpg'],
         },
