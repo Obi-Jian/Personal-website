@@ -35,7 +35,7 @@ export const translations: TranslationsMap = {
       {
         id: 'proj2',
         title: 'Python',
-        description: 'We used python to study statistics, regressions, classifiers, clusters, etc... during "Big Data", and "Human-machine interactions" courses. On my github you can find the codes of the exercises and the final projects of both. I also used many cryptography, exploiting, and web scraping tools during my experience at CyberChallenge. Libraries used: numpy, sklearn, scipy, pandas and pyTorch, scapy, PyCryptodome, Pwntools.',
+        description: 'We used python to study statistics, regressions, classifiers, clusters, etc... during "Big Data", and "Human-machine interactions" courses. On my github you can find the codes of the exercises and the final projects of both. I also used many cryptography, exploiting, and web scraping tools during my experience at CyberChallenge. Used libraries: NumPy, SciPy, pandas, PyTorch, Scapy, PyCryptodome, Pwntools.',
         imageCount: 0,
         classic: true,
       },
@@ -140,7 +140,7 @@ export const translations: TranslationsMap = {
       {
         id: 'proj2',
         title: 'Python',
-        description: 'Abbiamo usato python per studiare statistica, regressioni, classificatori, clusters, ecc... durante il corso di "Big Data", e "Interazioni uomo-macchina". Sul mio github, linkato nella sezione contatti, si possono trovare i codici degli esercizi e dei progetti finali di entrambi. Inoltre ho usato molti tool di crittografia, exploiting e scraping web durante la mia esperienza a CyberChallenge. Librerie utilizzate: numpy, sklearn, scipy, pandas e pyTorch, scapy, PyCryptodome, Pwntools.',
+        description: 'Abbiamo usato python per studiare statistica, regressioni, classificatori, clusters, ecc... durante il corso di "Big Data", e "Interazioni uomo-macchina". Sul mio github, linkato nella sezione contatti, si possono trovare i codici degli esercizi e dei progetti finali di entrambi. Inoltre ho usato molti tool di crittografia, exploiting e scraping web durante la mia esperienza a CyberChallenge. Librerie utilizzate: NumPy, SciPy, pandas, PyTorch, Scapy, PyCryptodome, Pwntools.',
         imageCount: 0,
         classic: true,
       },
