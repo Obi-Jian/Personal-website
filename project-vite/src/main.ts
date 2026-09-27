@@ -4,7 +4,7 @@ import type { Lang, ProjectTranslation } from './types'
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-let currentLang: Lang = (localStorage.getItem('lang') as Lang | null) ?? 'en'
+let currentLang: Lang = (localStorage.getItem('lang') as Lang | null) ?? 'it'
 const imageIndexes: Record<string, number> = {}
 
 // Deep-link mapping: panel id ↔ url hash slug
