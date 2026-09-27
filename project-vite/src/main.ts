@@ -51,6 +51,7 @@ function openPanel(panelEl: HTMLElement): void {
 function closePanel(panelEl: HTMLElement): void {
   panelEl.classList.remove('open')
   qs<HTMLElement>('.expandablePanelTrigger', panelEl).setAttribute('aria-expanded', 'false')
+  resetPanelAnim(panelEl)
 }
 
 function closeAllPanels(): void {
@@ -171,7 +172,8 @@ function togglePanel(panelId: string): void {
   openPanel(panel)
   document.body.classList.add('openPanel')
   setHash(panelId)
-  scrollOnOpen(panel)
+  scrollOnOpen(panel)   // measures full content (for landscape runway) before we blank it
+  animatePanel(panel)
 }
 
 function initPanels(): void {
@@ -194,6 +196,7 @@ function initPanels(): void {
     openPanel(panel)
     document.body.classList.add('openPanel')
     scrollOnOpen(panel)
+    animatePanel(panel)
   }
   openFromHash()
   window.addEventListener('hashchange', openFromHash)
@@ -298,6 +301,114 @@ function buildImagesHTML(p: ProjectTranslation): string {
   }).join('\n')
 }
 
+// ─── Typewriter entrance ──────────────────────────────────────────────────────
+// When a panel opens, its text is typed out line by line — a line only starts once
+// the previous one has finished. Nothing is pre-sized: the panel GROWS as the text
+// is written (the space expands with the lines). Wrapping paragraphs keep the
+// current/next word present but invisible, so a word never appears at a line end
+// and then jumps to the next line — while the height still grows word by word.
+const ANIM_SELECTOR =
+  '.projectTitle, .projectTech, .projectDescription, .projectPreview, .imageCount, #aboutSectionContent p, .contactLink'
+
+const MS_PER_CHAR = 8            // typing speed, uniform across panels (lower = faster)
+const MIN_DUR     = 120          // floor for very short elements
+const PREVIEW_GAP = 140          // pause after an image before the next line
+
+const fullText = new WeakMap<HTMLElement, string>()
+let animToken = 0                // bump to cancel any in-flight typing
+
+const isPreview  = (el: HTMLElement): boolean => el.classList.contains('projectPreview')
+const isWrapping = (el: HTMLElement): boolean =>
+  el.classList.contains('projectDescription') || el.closest('#aboutSectionContent') !== null
+
+// Snapshot the full text of every typeable element so we can always retype from
+// the original (and restore it) even if a panel is closed mid-animation.
+function setupTypewriter(): void {
+  qsAll<HTMLElement>('.expandablePanel').forEach(panel => {
+    qsAll<HTMLElement>(ANIM_SELECTOR, panel).forEach(el => {
+      if (!isPreview(el)) fullText.set(el, el.textContent ?? '')
+    })
+  })
+}
+
+// Wrapping paragraph: reveal char by char, keeping the current/next word present
+// but invisible so its wrap position is fixed (the word never jumps lines). Only
+// up to that word is in the DOM, so the height still grows as lines are written.
+function typeWrapped(el: HTMLElement, text: string, token: number, done: () => void): void {
+  const total  = text.length
+  el.textContent = ''
+  const shown  = document.createTextNode('')
+  const hidden = document.createElement('span')
+  hidden.style.visibility = 'hidden'
+  el.append(shown, hidden)
+  const dur = Math.max(MIN_DUR, total * MS_PER_CHAR)
+  const t0  = performance.now()
+  const step = (now: number): void => {
+    if (token !== animToken) return
+    const n = Math.max(1, Math.round(Math.min(1, (now - t0) / dur) * total))
+    let end = n
+    while (end < total && /\s/.test(text.charAt(end))) end++      // skip spaces
+    while (end < total && !/\s/.test(text.charAt(end))) end++     // to end of next word
+    shown.nodeValue    = text.slice(0, n)
+    hidden.textContent = text.slice(n, end)
+    if (n < total) requestAnimationFrame(step)
+    else { el.textContent = text; done() }
+  }
+  requestAnimationFrame(step)
+}
+
+// Short single-line element (title, tech, count, link): plain character reveal.
+function typeSimple(el: HTMLElement, text: string, token: number, done: () => void): void {
+  const total = text.length
+  el.textContent = ''
+  const dur = Math.max(MIN_DUR, total * MS_PER_CHAR)
+  const t0  = performance.now()
+  const step = (now: number): void => {
+    if (token !== animToken) return
+    const n = Math.max(1, Math.round(Math.min(1, (now - t0) / dur) * total))
+    el.textContent = text.slice(0, n)
+    if (n < total) requestAnimationFrame(step)
+    else { el.textContent = text; done() }
+  }
+  requestAnimationFrame(step)
+}
+
+function animatePanel(panel: HTMLElement): void {
+  const els = qsAll<HTMLElement>(ANIM_SELECTOR, panel)
+  if (prefersReducedMotion()) {
+    els.forEach(el => { if (isPreview(el)) el.classList.add('typed') })
+    return
+  }
+  // Blank everything up front (NO height reserved — the panel grows as we write).
+  els.forEach(el => { if (isPreview(el)) el.classList.remove('typed'); else el.textContent = '' })
+
+  const token = ++animToken
+  let i = 0
+  const next = (): void => {
+    if (token !== animToken || i >= els.length) return
+    const el = els[i++]
+    if (isPreview(el)) {
+      el.classList.add('typed')
+      window.setTimeout(next, PREVIEW_GAP)            // brief beat, then the next line
+    } else {
+      const text = fullText.get(el) ?? ''
+      if (text.length === 0) { next(); return }
+      ;(isWrapping(el) ? typeWrapped : typeSimple)(el, text, token, next)
+    }
+  }
+  next()
+}
+
+// Restore a panel's text (cancelling any in-flight typing) when it closes, so it
+// is never left half-written.
+function resetPanelAnim(panel: HTMLElement): void {
+  animToken++
+  qsAll<HTMLElement>(ANIM_SELECTOR, panel).forEach(el => {
+    if (isPreview(el)) el.classList.remove('typed')
+    else { const t = fullText.get(el); if (t !== undefined) el.textContent = t }
+  })
+}
+
 // ─── Apply translations ───────────────────────────────────────────────────────
 
 function applyTranslations(lang: Lang): void {
@@ -362,6 +473,7 @@ function applyTranslations(lang: Lang): void {
   // init cycling UNA VOLTA SOLA dopo che tutto il DOM è pronto
   initImageCycling()
   initProjectVideos()
+  setupTypewriter()
 
   // lang buttons
   document.querySelectorAll<HTMLElement>('.langBtn').forEach(btn => {

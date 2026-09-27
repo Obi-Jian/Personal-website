@@ -298,30 +298,17 @@ html.measuring .expandablePanelContentContainer {
   transform: none;
 }
 
-/* Stagger d'entrata dei singoli elementi quando il pannello si apre */
-.expandablePanelContent .project,
-#aboutSectionContent p,
-#contactLinks .contactLink {
+/* Typewriter d'entrata (vedi il codice in main.ts): il JS scrive il testo di ogni
+   elemento carattere per carattere, una riga dopo l'altra. L'anteprima immagine
+   compare in dissolvenza quando arriva il suo turno. Le altezze sono riservate da
+   JS così nulla salta mentre il testo viene "scritto". */
+.expandablePanelContent .projectPreview {
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity .5s var(--ease), transform .5s var(--ease);
+  transition: opacity .4s var(--ease);
 }
-.expandablePanel.open .expandablePanelContent .project,
-.expandablePanel.open #aboutSectionContent p,
-.expandablePanel.open #contactLinks .contactLink {
+.expandablePanelContent .projectPreview.typed {
   opacity: 1;
-  transform: none;
 }
-.expandablePanel.open .expandablePanelContent .project:nth-child(1),
-.expandablePanel.open #aboutSectionContent p:nth-child(1),
-.expandablePanel.open #contactLinks .contactLink:nth-of-type(1) { transition-delay: .08s; }
-.expandablePanel.open .expandablePanelContent .project:nth-child(2),
-.expandablePanel.open #aboutSectionContent p:nth-child(2),
-.expandablePanel.open #contactLinks .contactLink:nth-of-type(2) { transition-delay: .16s; }
-.expandablePanel.open .expandablePanelContent .project:nth-child(3),
-.expandablePanel.open #aboutSectionContent p:nth-child(3),
-.expandablePanel.open #contactLinks .contactLink:nth-of-type(3) { transition-delay: .24s; }
-.expandablePanel.open .expandablePanelContent .project:nth-child(4) { transition-delay: .32s; }
 
 /* ─── Smaller text (about, contact) ─────────────────────────────────────── */
 .smallerText {
@@ -420,7 +407,8 @@ html.measuring .expandablePanelContentContainer {
   margin-bottom: 30px;
   line-height: 1.25;
   letter-spacing: -1px;
-  text-wrap: balance;
+  /* niente text-wrap: balance — ribilanciava gli a-capo, e col typewriter faceva
+     "cambiare forma" al testo dopo averlo scritto. Wrapping normale = stabile. */
   overflow-wrap: break-word;
   hyphens: none;
 }
@@ -669,10 +657,9 @@ html.measuring .expandablePanelContentContainer {
     scroll-behavior: auto !important;
   }
   .fadeOnLoad { transform: none; }
-  .expandablePanelContent,
-  .expandablePanelContent .project,
-  #aboutSectionContent p,
-  #contactLinks .contactLink { transform: none; }
+  .expandablePanelContent { transform: none; }
+  /* No typewriter under reduced motion: JS shows full text; keep media visible. */
+  .expandablePanelContent .projectPreview { opacity: 1 !important; }
   /* Video is paused by JS; its poster stays as a static background (no motion). */
 }
 
@@ -691,7 +678,8 @@ html.measuring .expandablePanelContentContainer {
   .navLink, .expandablePanelTrigger { color: #000; }
   .expandablePanelContentContainer { grid-template-rows: 1fr !important; }
   .expandablePanelContent { overflow: visible !important; opacity: 1 !important; transform: none !important; }
-  .projectPreview, .projectDescription { width: 100%; }
+  .projectPreview { width: 100%; opacity: 1 !important; }
+  .projectDescription { width: 100%; }
 }
 
 /* ─── Very narrow bg-video framing ───────────────────────────────────────── */
