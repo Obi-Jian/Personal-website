@@ -147,7 +147,7 @@ export const translations: TranslationsMap = {
       {
         id: 'proj3',
         title: 'Rust',
-        description: '\"The Rust Programming Language\" è una lettura obbligata. L\'ho fatto, seguendo anche vari tutorial su yt e ho creato un piccolo progetto visualizzabile nella sezione Progetti :D',
+        description: '\"The Rust Programming Language\" è una lettura obbligata. L\'ho fatto, seguendo anche vari tutorial su YouTube e ho creato un piccolo progetto visualizzabile nella sezione Progetti :D',
         imageCount: 0,
         classic: true,
       },
