@@ -333,7 +333,7 @@ function applyTranslations(lang: Lang): void {
   const contactLinks = document.getElementById('contactLinks')
   if (contactLinks) {
     contactLinks.innerHTML = `
-      <a href="mailto:cuboids.plectra_3g@icloud.com" class="contactLink">${t.contact.email}</a><br>
+      <a href="mailto:work@gcol.it" class="contactLink">${t.contact.email}</a><br>
       <a href="https://linkedin.com/in/gianluca-colombo-milano" class="contactLink" target="_blank" rel="noopener">${t.contact.linkedin}</a><br>
       <a href="https://github.com/Obi-Jian" class="contactLink" target="_blank" rel="noopener">${t.contact.github}</a>`
   }
